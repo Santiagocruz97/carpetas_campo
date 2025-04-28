@@ -32,30 +32,37 @@ def seleccionar_carpeta():
         entry_ruta_salida.delete(0, tk.END)
         entry_ruta_salida.insert(0, carpeta)
 
-# Función para renombrar imágenes
-def renombrar_imagenes():
-    ruta_carpeta = entry_ruta_salida.get()
+# Función para renombrar las imágenes en todas las carpetas dentro de la ruta seleccionada
+def renombrar_imagenes_en_todas_las_carpetas():
+    ruta_padre = entry_ruta_salida.get()
 
-    if not os.path.exists(ruta_carpeta):
-        messagebox.showerror("Error", f"La carpeta {ruta_carpeta} no existe.")
+    if not os.path.exists(ruta_padre):
+        messagebox.showerror("Error", f"La carpeta {ruta_padre} no existe.")
         return
 
-    nombre_carpeta = os.path.basename(ruta_carpeta)
-    imagenes = [f for f in os.listdir(ruta_carpeta) if f.lower().endswith(('.jpg', '.png', '.gif'))]
+    # Recorrer todas las carpetas dentro de la ruta seleccionada
+    for carpeta in os.listdir(ruta_padre):
+        ruta_carpeta = os.path.join(ruta_padre, carpeta)
 
-    if not imagenes:
-        messagebox.showerror("Error", "No se encontraron imágenes en la carpeta.")
-        return
+        # Verificar si es una carpeta
+        if os.path.isdir(ruta_carpeta):
+            nombre_carpeta = os.path.basename(ruta_carpeta)
+            imagenes = [f for f in os.listdir(ruta_carpeta) if f.lower().endswith(('.jpg', '.png', '.gif'))]
 
-    for i, imagen in enumerate(imagenes, start=1):
-        extension = os.path.splitext(imagen)[1]
-        nuevo_nombre = f"{nombre_carpeta}({i}){extension}"
-        ruta_imagen = os.path.join(ruta_carpeta, imagen)
-        ruta_destino = os.path.join(ruta_carpeta, nuevo_nombre)
-        os.rename(ruta_imagen, ruta_destino)
-        print(f"Imagen {imagen} renombrada a {nuevo_nombre}")
+            if not imagenes:
+                print(f"No se encontraron imágenes en {ruta_carpeta}")
+                continue
 
-    messagebox.showinfo("Éxito", f"Las imágenes han sido renombradas correctamente.")
+            # Renombrar las imágenes con el nombre de la carpeta y el número secuencial
+            for i, imagen in enumerate(imagenes, start=1):
+                extension = os.path.splitext(imagen)[1]
+                nuevo_nombre = f"{nombre_carpeta}({i}){extension}"
+                ruta_imagen = os.path.join(ruta_carpeta, imagen)
+                ruta_destino = os.path.join(ruta_carpeta, nuevo_nombre)
+                os.rename(ruta_imagen, ruta_destino)
+                print(f"Imagen {imagen} renombrada a {nuevo_nombre}")
+
+    messagebox.showinfo("Éxito", "Las imágenes en todas las carpetas han sido renombradas correctamente.")
 
 # Crear la ventana principal
 ventana = tk.Tk()
@@ -98,12 +105,12 @@ entry_ruta_salida.grid(row=0, column=1, padx=10)
 boton_seleccionar_carpeta = tk.Button(frame_imagenes, text="Seleccionar carpeta", command=seleccionar_carpeta)
 boton_seleccionar_carpeta.grid(row=1, column=0, columnspan=2, pady=10)
 
-boton_renombrar_imagenes = tk.Button(frame_imagenes, text="Renombrar Imágenes", command=renombrar_imagenes)
+boton_renombrar_imagenes = tk.Button(frame_imagenes, text="Renombrar Imágenes en Todas las Carpetas", command=renombrar_imagenes_en_todas_las_carpetas)
 boton_renombrar_imagenes.grid(row=2, column=0, columnspan=2, pady=10)
 
 # Instrucciones
 instrucciones = tk.Label(ventana, text="1. Para crear carpetas, ingrese el número inicial y la cantidad.\n"
-                                         "2. Para renombrar imágenes, seleccione una carpeta con imágenes y haga clic en 'Renombrar Imágenes'.", justify="left", wraplength=500)
+                                         "2. Para renombrar imágenes en todas las carpetas, seleccione una carpeta con subcarpetas e imágenes y haga clic en 'Renombrar Imágenes'.", justify="left", wraplength=500)
 instrucciones.grid(row=3, column=0, columnspan=2, pady=20, padx=20)
 
 # Créditos
